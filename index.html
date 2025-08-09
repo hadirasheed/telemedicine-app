@@ -1,1 +1,246 @@
-<html><body>Placeholder for index.html from Supabase version</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Telemedicine Questionnaire</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #007bff; color: #fff; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 18px; margin: 0; }
+    main { padding: 15px; max-width: 600px; margin: auto; }
+    select, input, button, textarea { width: 100%; padding: 8px; margin: 5px 0; font-size: 16px; }
+    .question { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .buttons { display: flex; gap: 10px; margin-top: 10px; }
+    .buttons button { flex: 1; padding: 10px; font-size: 16px; }
+    .hidden { display: none; }
+    .checkboxes label { display: block; margin: 5px 0; }
+    .counter { font-weight: bold; margin-bottom: 10px; }
+    .note { margin-top: 10px; }
+    footer { text-align: center; padding: 10px; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Telemedicine Questionnaire</h1>
+    <button onclick="goHome()">Home</button>
+  </header>
+  <main id="app">
+    <section id="home-screen">
+      <h2>Welcome</h2>
+      <label>Name (optional):</label>
+      <input type="text" id="username" placeholder="Enter your name" />
+      <label>Choose Medical Specialty:</label>
+      <select id="specialty"></select>
+      <button onclick="startQuestions()">Start</button>
+      <button onclick="showAdminLogin()">Admin</button>
+    </section>
+
+    <section id="question-screen" class="hidden">
+      <div class="counter" id="counter"></div>
+      <h3>Can this condition/disease be diagnosed and treated over a Telemedicine App?</h3>
+      <div class="question">
+        <div id="question-text"></div>
+        <div class="buttons">
+          <button onclick="answerQuestion('yes')">Yes</button>
+          <button onclick="answerQuestion('no')">No</button>
+          <button onclick="answerQuestion('skip')">Skip</button>
+        </div>
+        <div id="no-options" class="checkboxes hidden">
+          <label><input type="checkbox" value="Need Physical Exam"/> Need Physical Exam</label>
+          <label><input type="checkbox" value="Need a Lab Test"/> Need a Lab Test</label>
+          <label><input type="checkbox" value="Need Imaging"/> Need Imaging</label>
+        </div>
+        <div class="note">
+          <textarea id="note" placeholder="Add a note (optional)"></textarea>
+        </div>
+        <div class="buttons">
+          <button onclick="prevQuestion()">Back</button>
+          <button onclick="nextQuestion()">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="completion-screen" class="hidden">
+      <h2>Set Complete!</h2>
+      <button onclick="startNewSet()">Start New Set</button>
+    </section>
+
+    <section id="admin-login-screen" class="hidden">
+      <h2>Admin Login</h2>
+      <input type="password" id="admin-password" placeholder="Enter admin password" />
+      <button onclick="adminLogin()">Login</button>
+    </section>
+
+    <section id="admin-dashboard" class="hidden">
+      <h2>Admin Dashboard</h2>
+      <button onclick="showResponses()">View Responses</button>
+      <button onclick="showSpecialties()">Manage Specialties</button>
+      <button onclick="logoutAdmin()">Logout</button>
+      <div id="admin-content"></div>
+    </section>
+  </main>
+  <footer>
+    Telemedicine Questionnaire App
+  </footer>
+
+<script>
+let specialties = [];
+let questions = [];
+let currentQuestionIndex = 0;
+let currentSetIndex = 0;
+let token = null;
+let currentSpecialtyId = null;
+let answers = [];
+let adminMode = false;
+
+async function goHome(){
+  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('home-screen').classList.remove('hidden');
+}
+
+async function fetchSpecialties(){
+  const res = await fetch('/api/get-specialties');
+  const data = await res.json();
+  specialties = data.specialties;
+  const sel = document.getElementById('specialty');
+  sel.innerHTML = '';
+  specialties.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+}
+
+async function startQuestions(){
+  const name = document.getElementById('username').value;
+  currentSpecialtyId = document.getElementById('specialty').value;
+  await syncUser(name);
+  await loadQuestions();
+  currentQuestionIndex = 0;
+  showQuestion();
+  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('question-screen').classList.remove('hidden');
+}
+
+async function syncUser(name){
+  const res = await fetch('/api/sync-user',{
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name})
+  });
+  const data = await res.json();
+  token = data.token;
+}
+
+async function loadQuestions(){
+  const res = await fetch(`/api/get-questions?specId=${currentSpecialtyId}`);
+  const data = await res.json();
+  questions = data.questions;
+}
+
+function showQuestion(){
+  if(currentQuestionIndex >= questions.length){
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    document.getElementById('completion-screen').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('counter').textContent = `Question ${currentQuestionIndex+1} of ${questions.length}`;
+  document.getElementById('question-text').textContent = questions[currentQuestionIndex].text;
+  document.getElementById('no-options').classList.add('hidden');
+  document.getElementById('note').value = '';
+}
+
+function answerQuestion(ans){
+  if(ans === 'no'){
+    document.getElementById('no-options').classList.remove('hidden');
+  } else {
+    document.getElementById('no-options').classList.add('hidden');
+  }
+  answers[currentQuestionIndex] = {answer: ans};
+}
+
+function prevQuestion(){
+  if(currentQuestionIndex > 0){
+    currentQuestionIndex--;
+    showQuestion();
+  }
+}
+
+async function nextQuestion(){
+  const ans = answers[currentQuestionIndex] || {};
+  ans.note = document.getElementById('note').value;
+  if(ans.answer === 'no'){
+    ans.reasons = Array.from(document.querySelectorAll('#no-options input:checked')).map(cb=>cb.value);
+  }
+  await saveResponse(questions[currentQuestionIndex], ans);
+  currentQuestionIndex++;
+  showQuestion();
+}
+
+async function saveResponse(question, ans){
+  await fetch('/api/save-response',{
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      token,
+      specId: currentSpecialtyId,
+      questionId: question.id,
+      questionText: question.text,
+      answer: ans.answer,
+      reasons: ans.reasons || [],
+      note: ans.note,
+      setIndex: currentSetIndex,
+      indexInSet: currentQuestionIndex
+    })
+  });
+}
+
+function startNewSet(){
+  currentSetIndex++;
+  currentQuestionIndex = 0;
+  showQuestion();
+  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('question-screen').classList.remove('hidden');
+}
+
+function showAdminLogin(){
+  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('admin-login-screen').classList.remove('hidden');
+}
+
+async function adminLogin(){
+  const pass = document.getElementById('admin-password').value;
+  const res = await fetch('/api/admin-list-responses', {
+    headers: {'X-Admin-Password': pass}
+  });
+  if(res.ok){
+    adminMode = true;
+    localStorage.setItem('adminPass', pass);
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    document.getElementById('admin-dashboard').classList.remove('hidden');
+  } else {
+    alert('Invalid admin password');
+  }
+}
+
+function logoutAdmin(){
+  adminMode = false;
+  localStorage.removeItem('adminPass');
+  goHome();
+}
+
+function showResponses(){
+  document.getElementById('admin-content').textContent = 'Responses view would load here...';
+}
+
+function showSpecialties(){
+  document.getElementById('admin-content').textContent = 'Specialties management would load here...';
+}
+
+fetchSpecialties();
+goHome();
+</script>
+</body>
+</html>
