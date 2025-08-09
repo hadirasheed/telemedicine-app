@@ -1,420 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Telemedicine Questionnaire</title>
-  <style>
-    :root{ --bg:#0f172a; --card:#111827; --muted:#1f2937; --text:#e5e7eb; --accent:#22c55e; --accent-2:#3b82f6; --danger:#ef4444; --warn:#f59e0b; --border:#374151 }
-    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,var(--bg),#020617);color:var(--text);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    header{position:sticky;top:0;z-index:10;background:rgba(2,6,23,.9);backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border)}
-    .container{max-width:980px;margin-inline:auto;padding:16px} .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap} .spacer{flex:1}
-    .btn{appearance:none;border:1px solid var(--border);background:var(--muted);color:var(--text);padding:.6rem .9rem;border-radius:12px;cursor:pointer;font-weight:600}
-    .btn:disabled{opacity:.5;cursor:not-allowed} .btn.primary{background:var(--accent);border-color:transparent;color:#041b0b} .btn.info{background:var(--accent-2);border-color:transparent;color:#06112a}
-    .btn.warn{background:var(--warn);border-color:transparent;color:#2a1706} .btn.ghost{background:transparent} .btn.danger{background:var(--danger);border-color:transparent;color:#320808}
-    .chip{font-size:.8rem;padding:.25rem .55rem;border:1px solid var(--border);border-radius:999px;background:#0b1220}
-    main{padding:20px} .card{background:linear-gradient(180deg,#0b1020,#070b16);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
-    h1,h2,h3{margin:.2rem 0 .8rem} h1{font-size:1.6rem} input,select,textarea{width:100%;padding:.7rem .8rem;border-radius:12px;border:1px solid var(--border);background:#0a1221;color:var(--text)}
-    label{font-size:.9rem;opacity:.85} .grid{display:grid;gap:12px} .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))} .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .stack{display:flex;flex-direction:column;gap:12px} .center{display:flex;justify-content:center;align-items:center} .hidden{display:none!important}
-    .title{font-size:1.1rem;opacity:.9} .question{font-size:1.3rem;font-weight:700} .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;padding:.2rem .4rem;border:1px solid var(--border);border-radius:6px;background:#0b1220}
-    table{width:100%;border-collapse:collapse} th,td{border-bottom:1px solid var(--border);padding:.6rem;text-align:left;font-size:.95rem} tr:hover td{background:#0b1220;transition:.15s}
-    .notice{font-size:.9rem;opacity:.8} .pill{padding:.2rem .45rem;border-radius:999px;border:1px solid var(--border)}
-    @media (max-width:720px){ .grid.cols-3,.grid.cols-2{grid-template-columns:1fr} header .row{gap:8px} .btn{padding:.6rem .75rem} }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Telemedicine Questionnaire</title>
+<style>
+:root{--bg:#0f172a;--card:#111827;--muted:#1f2937;--text:#e5e7eb;--accent:#22c55e;--accent-2:#3b82f6;--danger:#ef4444;--warn:#f59e0b;--border:#374151}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+header{position:sticky;top:0;z-index:10;background:rgba(2,6,23,.9);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+.container{max-width:980px;margin:auto;padding:16px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.spacer{flex:1}
+.btn{border:1px solid var(--border);background:var(--muted);color:var(--text);padding:.6rem .9rem;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);border:none;color:#041b0b}.btn.info{background:var(--accent-2);border:none;color:#06112a}
+.btn.danger{background:var(--danger);border:none;color:#320808}.btn.warn{background:var(--warn);border:none;color:#2a1706}
+.hidden{display:none!important}.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:16px}
+.grid{display:grid;gap:12px}.grid.cols-2{grid-template-columns:repeat(2,1fr)}.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+input,select,textarea{width:100%;padding:.5rem;border-radius:6px;border:1px solid var(--border);background:var(--muted);color:var(--text)}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--border);padding:.5rem;text-align:left}tr:hover td{background:#0b1220}
+</style>
 </head>
 <body>
-  <header>
-    <div class="container row">
-      <button id="homeBtn" class="btn ghost" title="Home">🏠 Home</button>
-      <span id="setCounter" class="chip">Set: <b>0</b> / Questions left: <b>0</b></span>
-      <span id="userTokenChip" class="chip">Token: –</span>
-      <div class="spacer"></div>
-      <button id="adminBtn" class="btn info" title="Open Admin">Admin</button>
+
+<header>
+  <div class="container row">
+    <button id="homeBtn" class="btn">🏠 Home</button>
+    <span id="setCounter"></span>
+    <div class="spacer"></div>
+    <button id="adminBtn" class="btn info">Admin</button>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Home -->
+  <section id="view-home" class="card">
+    <h2>Telemedicine Questionnaire</h2>
+    <div class="grid cols-2">
+      <div>
+        <label>Name (optional)</label>
+        <input id="nameInput">
+      </div>
+      <div>
+        <label>Medical Specialty</label>
+        <select id="specialtySelect"></select>
+      </div>
     </div>
-  </header>
+    <div class="row" style="margin-top:12px">
+      <button id="startBtn" class="btn primary">Start</button>
+      <button id="resumeBtn" class="btn">Resume</button>
+      <button id="resetBtn" class="btn danger">Reset</button>
+    </div>
+  </section>
 
-  <main class="container">
-    <!-- HOME VIEW -->
-    <section id="view-home" class="card stack">
-      <h1>Telemedicine Questionnaire</h1>
-      <p class="notice">Enter a name (optional) and choose a medical specialty to begin. Your session token saves progress on this device.</p>
-      <div class="grid cols-2">
-        <div>
-          <label for="nameInput">Name (optional)</label>
-          <input id="nameInput" placeholder="e.g., Dr. Sana or Alex" />
-        </div>
-        <div>
-          <label for="specialtySelect">Medical Specialty</label>
-          <select id="specialtySelect"></select>
-        </div>
-      </div>
-      <div class="row">
-        <button id="startBtn" class="btn primary">Start</button>
-        <button id="resumeBtn" class="btn">Resume</button>
-        <span class="spacer"></span>
-        <button id="resetBtn" class="btn danger" title="Clear local progress only">Reset local progress</button>
-      </div>
-    </section>
+  <!-- Quiz -->
+  <section id="view-quiz" class="card hidden">
+    <h3>Can this condition/disease be diagnosed and treated over a Telemedicine App?</h3>
+    <div id="questionText" style="font-weight:bold"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="btnYes" class="btn primary">Yes</button>
+      <button id="btnNo" class="btn warn">No</button>
+      <button id="btnSkip" class="btn">Skip</button>
+    </div>
+    <div id="noReasons" class="hidden" style="margin-top:12px">
+      <label><input type="checkbox" value="physical" class="no-reason"> Need Physical Exam</label>
+      <label><input type="checkbox" value="lab" class="no-reason"> Need a Lab Test</label>
+      <label><input type="checkbox" value="imaging" class="no-reason"> Need Imaging</label>
+    </div>
+    <textarea id="noteInput" rows="2" placeholder="Add note" style="margin-top:12px"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button id="backBtn" class="btn">← Back</button>
+      <div class="spacer"></div>
+      <button id="nextBtn" class="btn info">Next →</button>
+    </div>
+  </section>
 
-    <!-- QUESTION VIEW -->
-    <section id="view-quiz" class="card stack hidden">
-      <div class="row" style="justify-content:space-between">
-        <div class="title">Can this condition/disease be diagnosed and treated over a Telemedicine App?</div>
-        <div class="pill" id="questionIndexPill">Question 1 of 15</div>
-      </div>
-      <div class="question" id="questionText">—</div>
-      <div class="stack">
-        <div class="row">
-          <button class="btn primary" id="btnYes">Yes</button>
-          <button class="btn warn" id="btnNo">No</button>
-          <button class="btn" id="btnSkip">Skip</button>
-        </div>
-        <div id="noReasons" class="hidden">
-          <label>Why not? (select all that apply)</label>
-          <div class="grid cols-3">
-            <label><input type="checkbox" value="physical" class="no-reason"> Need Physical Exam</label>
-            <label><input type="checkbox" value="lab" class="no-reason"> Need a Lab Test</label>
-            <label><input type="checkbox" value="imaging" class="no-reason"> Need Imaging</label>
-          </div>
-        </div>
-        <div>
-          <label for="noteInput">Add a note (optional)</label>
-          <textarea id="noteInput" rows="2" placeholder="e.g., Requires in-person neuro exam"></textarea>
-        </div>
-        <div class="row">
-          <button class="btn" id="backBtn">← Back</button>
-          <div class="spacer"></div>
-          <button class="btn info" id="nextBtn">Next →</button>
-        </div>
-      </div>
-    </section>
+  <!-- Complete -->
+  <section id="view-complete" class="card hidden">
+    <h3>Set complete ✅</h3>
+    <button id="startNextSetBtn" class="btn primary">Start next set</button>
+    <button id="gotoHomeFromCompleteBtn" class="btn">Home</button>
+  </section>
 
-    <!-- SET COMPLETE VIEW -->
-    <section id="view-complete" class="card stack hidden center" style="min-height:40vh">
-      <div class="stack" style="max-width:520px;text-align:center">
-        <h2>Set complete ✅</h2>
-        <p>You finished this set of 15 questions. Start the next set or return home.</p>
-        <div class="row center">
-          <button class="btn primary" id="startNextSetBtn">Start next set</button>
-          <button class="btn" id="gotoHomeFromCompleteBtn">Back to Home</button>
-        </div>
-      </div>
-    </section>
+  <!-- Admin -->
+  <section id="view-admin" class="card hidden">
+    <h3>Admin Dashboard</h3>
+    <div class="row">
+      <button onclick="showSpecialties()" class="btn info">Manage Specialties</button>
+      <button onclick="showResponses()" class="btn">View Responses</button>
+      <button id="adminCloseBtn" class="btn">Close</button>
+    </div>
+    <div id="admin-content" style="margin-top:12px"></div>
+  </section>
+</main>
 
-    <!-- ADMIN VIEW -->
-    <section id="view-admin" class="card stack hidden">
-      <div class="row" style="justify-content:space-between;align-items:flex-end">
-        <h2>Admin Dashboard</h2>
-        <div class="row">
-          <button id="adminExportBtn" class="btn">Export responses (CSV)</button>
-          <button id="adminCloseBtn" class="btn ghost">Close</button>
-        </div>
-      </div>
+<script>
+// helpers
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const uid = ()=>crypto.randomUUID();
+const chunk = (arr,n)=>arr.reduce((acc,_,i)=>i%n?acc:[...acc,arr.slice(i,i+n)],[]);
+const shuffle = arr=>arr.sort(()=>Math.random()-.5);
+const api = {
+  getSpecialties:()=>fetch('/api/get-specialties').then(r=>r.json()),
+  getQuestions:(id)=>fetch('/api/get-questions?specId='+id).then(r=>r.json()),
+  syncUser:(token,name)=>fetch('/api/sync-user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,name})}),
+  saveResponse:(p)=>fetch('/api/save-response',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}),
+};
+let ADMIN_PW = localStorage.getItem('tmq.admin.pw') || null;
 
-      <div id="admin-content" class="stack">
-        <!-- filled by JS -->
-      </div>
-    </section>
-  </main>
+// state
+const LS_KEY='tmq.user';
+function getUser(){return JSON.parse(localStorage.getItem(LS_KEY)||'null')}
+function saveUser(u){localStorage.setItem(LS_KEY,JSON.stringify(u))}
+function initUser(){let u=getUser();if(!u){u={token:uid(),name:'',specId:null,questions:[],setIndex:0,qIndex:0};saveUser(u);}return u}
 
-  <script>
-  // ========= Utilities & Session =========
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const uid = () => (self.crypto?.randomUUID?.() || ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
-  const nowISO = () => new Date().toISOString();
-  const shuffle = arr => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
-  const chunk = (arr,n) => arr.reduce((acc,_,i)=> (i%n? acc: [...acc, arr.slice(i,i+n)]), []);
-  const escapeHtml = s => (s||'').replace(/[&<>\"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+// UI nav
+function show(id){['view-home','view-quiz','view-complete','view-admin'].forEach(v=>$('#'+v).classList.add('hidden'));$('#'+id).classList.remove('hidden');}
 
-  const KEYS = { userToken:'tmq.user.token', users:'tmq.users.progress', adminPw:'tmq.admin.pw' };
-  const readLS = (k, fb) => { try{const v=localStorage.getItem(k); return v? JSON.parse(v): (fb??null);}catch{return fb??null} }
-  const writeLS = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+// home
+async function renderHome(){
+  const u=initUser();
+  $('#nameInput').value=u.name;
+  const sel=$('#specialtySelect');sel.innerHTML='';
+  const s=await api.getSpecialties();
+  (s.specialties||[]).forEach(sp=>{const o=document.createElement('option');o.value=sp.id;o.textContent=sp.name;sel.appendChild(o)});
+  if(u.specId) sel.value=u.specId;
+  $('#setCounter').textContent=`Set: ${u.setIndex+1}`;
+}
+$('#startBtn').onclick=async()=>{
+  const u=initUser();
+  u.name=$('#nameInput').value.trim();u.specId=$('#specialtySelect').value;
+  const q=await api.getQuestions(u.specId);
+  u.questions=shuffle(q.questions.map(x=>({id:x.id,text:x.text})));
+  u.setIndex=0;u.qIndex=0;saveUser(u);await api.syncUser(u.token,u.name);renderQuestion();
+}
+$('#resumeBtn').onclick=()=>{const u=getUser();u?.specId?renderQuestion():alert('No session')}
+$('#resetBtn').onclick=()=>{localStorage.removeItem(LS_KEY);location.reload()}
+$('#homeBtn').onclick=()=>show('view-home');
 
-  function getOrCreateToken(){
-    let t = readLS(KEYS.userToken,null);
-    if(!t){ t=uid(); writeLS(KEYS.userToken,t); }
-    return t;
+// quiz
+function renderQuestion(){
+  const u=getUser();const sets=chunk(u.questions,15);const cur=sets[u.setIndex]||[];const q=cur[u.qIndex];
+  if(!q){show('view-complete');return}
+  $('#questionText').textContent=q.text;$('#noteInput').value='';$$('.no-reason').forEach(c=>c.checked=false);$('#noReasons').classList.add('hidden');show('view-quiz');
+}
+async function saveAnswer(ans){
+  const u=getUser();const sets=chunk(u.questions,15);const cur=sets[u.setIndex];const q=cur[u.qIndex];
+  const reasons=ans==='no' ? $$('.no-reason').filter(c=>c.checked).map(c=>c.value) : [];
+  await api.saveResponse({token:u.token,specId:u.specId,questionId:q.id,questionText:q.text,answer:ans,reasons,note:$('#noteInput').value});
+  u.qIndex++;saveUser(u);
+}
+$('#btnYes').onclick=async()=>{await saveAnswer('yes');renderQuestion()}
+$('#btnNo').onclick=()=>$('#noReasons').classList.remove('hidden');
+$('#btnSkip').onclick=async()=>{await saveAnswer('skip');renderQuestion()}
+$('#nextBtn').onclick=async()=>{if(!$('#noReasons').classList.contains('hidden')) await saveAnswer('no');renderQuestion()}
+$('#backBtn').onclick=()=>{const u=getUser();if(u.qIndex>0){u.qIndex--;saveUser(u);renderQuestion()}else show('view-home')}
+
+// complete
+$('#startNextSetBtn').onclick=()=>{const u=getUser();u.setIndex++;u.qIndex=0;saveUser(u);renderQuestion()}
+$('#gotoHomeFromCompleteBtn').onclick=()=>show('view-home')
+
+// admin
+$('#adminBtn').onclick=async()=>{
+  if(!ADMIN_PW){
+    const pw=prompt('Admin password');if(!pw)return;
+    const res=await fetch('/api/admin-list-responses',{headers:{'X-Admin-Password':pw}});
+    if(!res.ok){alert('Invalid');return}ADMIN_PW=pw;localStorage.setItem('tmq.admin.pw',pw);
   }
-  function readUsers(){ return readLS(KEYS.users,{}); }
-  function writeUsers(o){ writeLS(KEYS.users,o); }
-  function getUser(){
-    const token=getOrCreateToken(); const users=readUsers();
-    if(!users[token]){ users[token]={ token, name:'', specId:null, questionOrder:[], setIndex:0, indexInSet:0, createdAt:nowISO() }; writeUsers(users); }
-    return users[token];
+  showSpecialties();show('view-admin');
+}
+$('#adminCloseBtn').onclick=()=>show('view-home');
+
+function h(tag,attrs={},children=[]){const e=document.createElement(tag);Object.entries(attrs).forEach(([k,v])=>{if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)});(Array.isArray(children)?children:[children]).forEach(c=>e.appendChild(typeof c==='string'?document.createTextNode(c):c));return e}
+
+async function showSpecialties(){
+  const root=$('#admin-content');root.innerHTML='';
+  const inp=h('input',{placeholder:'New specialty'});const add=h('button',{class:'btn',onclick:async()=>{
+    await fetch('/api/admin-upsert-specialty',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':ADMIN_PW},body:JSON.stringify({name:inp.value})});
+    showSpecialties();
+  }},'Add');root.appendChild(h('div',{class:'row'},[inp,add]));
+  const t=h('table',{},[h('thead',{},h('tr',{},[h('th',{},'Name'),h('th',{},'Q Count')])),h('tbody')]);root.appendChild(t);
+  const s=await api.getSpecialties();const tb=t.querySelector('tbody');
+  for(const sp of s.specialties){
+    const q=await api.getQuestions(sp.id);
+    tb.appendChild(h('tr',{},[h('td',{},sp.name),h('td',{},String(q.questions.length))]));
   }
-  function saveUser(u){ const users=readUsers(); users[u.token]=u; writeUsers(users); }
+}
 
-  // ========= API helpers =========
-  const api = {
-    async getSpecialties(){ const r=await fetch('/api/get-specialties'); if(!r.ok) throw new Error('get-specialties failed'); return r.json(); },
-    async getQuestions(specId){ const r=await fetch('/api/get-questions?specId='+encodeURIComponent(specId)); if(!r.ok) throw new Error('get-questions failed'); return r.json(); },
-    async syncUser(token,name){ const r=await fetch('/api/sync-user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,name})}); if(!r.ok) throw new Error('sync-user failed'); return r.json(); },
-    async saveResponse(payload){ const r=await fetch('/api/save-response',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); if(!r.ok) throw new Error('save-response failed'); return r.json(); },
-    async adminListResponses(adminPw){ const r=await fetch('/api/admin-list-responses',{headers:{'X-Admin-Password':adminPw}}); if(!r.ok) throw new Error('admin list failed'); return r.json(); },
-    async adminExport(adminPw){ const r=await fetch('/api/admin-export',{headers:{'X-Admin-Password':adminPw}}); if(!r.ok) throw new Error('export failed'); return r.blob(); },
-    async adminUpsertSpecialty(name, adminPw){ const r=await fetch('/api/admin-upsert-specialty',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':adminPw},body:JSON.stringify({name})}); if(!r.ok) throw new Error('upsert spec failed'); return r.json(); },
-    async adminDeleteSpecialty(id, adminPw){ const r=await fetch('/api/admin-delete-specialty',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':adminPw},body:JSON.stringify({id})}); if(!r.ok) throw new Error('delete spec failed'); return r.json(); },
-    async adminImportCSV(text, adminPw){ const r=await fetch('/api/admin-import-questions',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':adminPw},body:JSON.stringify({csv:text})}); if(!r.ok) throw new Error('import failed'); return r.json(); },
-    async adminDownloadQuestions(specId, adminPw){ const r=await fetch('/api/admin-download-questions?specId='+encodeURIComponent(specId),{headers:{'X-Admin-Password':adminPw}}); if(!r.ok) throw new Error('download questions failed'); return r.blob(); },
-  };
+async function showResponses(){
+  const root=$('#admin-content');root.innerHTML='';
+  const res=await fetch('/api/admin-list-responses',{headers:{'X-Admin-Password':ADMIN_PW}});if(!res.ok){root.textContent='Failed';return}
+  const d=await res.json();const t=h('table',{},[h('thead',{},h('tr',{},['Token','Name','Spec','Question','Answer','Reasons','Note','Time'].map(x=>h('th',{},x)))),h('tbody')]);root.appendChild(t);
+  const tb=t.querySelector('tbody');(d.rows||[]).forEach(r=>{tb.appendChild(h('tr',{},[h('td',{},r.token.slice(0,8)+'…'),h('td',{},r.name),h('td',{},r.spec_id),h('td',{},r.question_text),h('td',{},r.answer),h('td',{},(r.reasons||[]).join('|')),h('td',{},r.note),h('td',{},r.created_at)]))});
+}
 
-  // ========= UI: Home & Quiz =========
-  async function renderHome(){
-    const u = getUser();
-    $('#nameInput').value = u.name || '';
-    const sel = $('#specialtySelect'); sel.innerHTML='';
-    const { specialties } = await api.getSpecialties();
-    specialties.forEach(s=>{ const opt=document.createElement('option'); opt.value=s.id; opt.textContent=s.name; sel.appendChild(opt); });
-    if(u.specId) sel.value = u.specId;
-    updateHeader();
-  }
-
-  function updateHeader(){
-    const u=getUser();
-    const sets = chunk(u.questionOrder, 15);
-    const currentSet = sets[u.setIndex] || [];
-    const left = Math.max(0, currentSet.length - u.indexInSet);
-    $('#setCounter').innerHTML = `Set: <b>${u.setIndex+1}</b> / Questions left: <b>${left}</b>`;
-    $('#userTokenChip').textContent = `Token: ${u.token.slice(0,8)}…`;
-  }
-
-  async function renderQuestion(){
-    const u = getUser();
-    if(!u.specId){ show('view-home'); return; }
-
-    if(!u.questionOrder || u.questionOrder.length===0){
-      const { questions } = await api.getQuestions(u.specId);
-      const ids = questions.map(q=>q.id);
-      u._questionMap = Object.fromEntries(questions.map(q=>[q.id,q.text]));
-      u.questionOrder = shuffle(ids);
-      u.setIndex = 0; u.indexInSet = 0; saveUser(u);
-    }
-
-    const sets = chunk(u.questionOrder, 15);
-    const currentSet = sets[u.setIndex] || [];
-    const qid = currentSet[u.indexInSet];
-
-    if(qid===undefined){ show('view-complete'); updateHeader(); return; }
-
-    const text = (getUser()._questionMap||{})[qid] || '—';
-    $('#questionText').textContent = text;
-    $('#noteInput').value='';
-    $$('#noReasons .no-reason').forEach(cb=>cb.checked=false);
-    $('#questionIndexPill').textContent = `Question ${u.indexInSet+1} of ${currentSet.length||15}`;
-
-    show('view-quiz'); updateHeader();
-  }
-
-  async function answerCurrent(answer){
-    const u = getUser();
-    const sets = chunk(u.questionOrder, 15);
-    const currentSet = sets[u.setIndex] || [];
-    const qid = currentSet[u.indexInSet];
-    if(!qid) return;
-
-    const reasons = (answer==='no') ? $$('.no-reason').filter(cb=>cb.checked).map(cb=>cb.value) : [];
-    const note = $('#noteInput').value.trim();
-
-    await api.saveResponse({
-      token: u.token,
-      specId: u.specId,
-      questionId: qid,
-      questionText: (u._questionMap||{})[qid] || '',
-      answer,
-      reasons,
-      note,
-      setIndex: u.setIndex,
-      indexInSet: u.indexInSet
-    });
-
-    u.indexInSet += 1; saveUser(u);
-  }
-
-  function goBack(){ const u=getUser(); if(u.indexInSet>0){ u.indexInSet-=1; saveUser(u); renderQuestion(); } else { show('view-home'); } }
-  function nextOrFinish(){ const u=getUser(); const sets=chunk(u.questionOrder,15); const cur=sets[u.setIndex]||[]; if(u.indexInSet>=cur.length){ show('view-complete'); updateHeader(); } else { renderQuestion(); } }
-  async function startNextSet(){ const u=getUser(); const sets=chunk(u.questionOrder,15); if(u.setIndex<sets.length-1){ u.setIndex+=1; u.indexInSet=0; saveUser(u); renderQuestion(); } else {
-      const { questions } = await api.getQuestions(u.specId); const ids = questions.map(q=>q.id); u._questionMap = Object.fromEntries(questions.map(q=>[q.id,q.text])); u.questionOrder=shuffle(ids); u.setIndex=0; u.indexInSet=0; saveUser(u); renderQuestion(); } }
-
-  // ========= Admin UI =========
-  let ADMIN_PW = readLS(KEYS.adminPw, null);
-
-  function show(id){ ['view-home','view-quiz','view-complete','view-admin'].forEach(v=>$('#'+v).classList.add('hidden')); $('#'+id).classList.remove('hidden'); }
-  function h(tag, attrs={}, children=[]){
-    const el=document.createElement(tag);
-    Object.entries(attrs).forEach(([k,v])=>{
-      if(k==='class') el.className=v;
-      else if(k.startsWith('on') && typeof v==='function') el.addEventListener(k.slice(2), v);
-      else el.setAttribute(k,v);
-    });
-    (Array.isArray(children)?children:[children]).forEach(c=>{
-      if(c==null) return;
-      if(typeof c==='string') el.appendChild(document.createTextNode(c));
-      else el.appendChild(c);
-    });
-    return el;
-  }
-
-  async function openAdmin(){
-    if(!ADMIN_PW){
-      const pw = prompt('Enter admin password');
-      if(!pw) return;
-      // quick check
-      const ok = await fetch('/api/admin-list-responses',{headers:{'X-Admin-Password':pw}});
-      if(!ok.ok){ alert('Invalid admin password'); return; }
-      ADMIN_PW = pw; writeLS(KEYS.adminPw, pw);
-    }
-    await renderAdminSpecialties();
-    show('view-admin');
-  }
-
-  async function renderAdminSpecialties(){
-    const root = $('#admin-content'); root.innerHTML='';
-    root.appendChild(h('h3',{},'Specialties'));
-    const row = h('div',{class:'row'});
-    const nameInput = h('input',{id:'newSpecName',placeholder:'Add new specialty (e.g., Dermatology)'});
-    const addBtn = h('button',{class:'btn info', onclick: async ()=>{
-      const name=nameInput.value.trim(); if(!name) return;
-      const r=await api.adminUpsertSpecialty(name, ADMIN_PW).catch(e=>({error:e}));
-      if(r?.error){ alert('Add failed'); return; }
-      nameInput.value=''; await renderAdminSpecialties();
-    }},'Add');
-    row.append(nameInput, addBtn);
-    root.appendChild(row);
-
-    const table = h('table',{id:'specTable'},[
-      h('thead',{},h('tr',{},[h('th',{},'Name'),h('th',{},'Questions'),h('th',{},'Actions')])),
-      h('tbody')
-    ]);
-    root.appendChild(table);
-
-    const { specialties } = await api.getSpecialties();
-    const tbody = table.querySelector('tbody');
-    for(const s of specialties){
-      const qres = await api.getQuestions(s.id); const count = (qres.questions||[]).length;
-
-      const dlBtn = h('button',{class:'btn ghost', onclick: async ()=>{
-        const b = await api.adminDownloadQuestions(s.id, ADMIN_PW).catch(()=>null);
-        if(!b){ alert('Download failed'); return; }
-        const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`questions-${s.name}.csv`; a.click();
-      }},'Download CSV');
-
-      const delBtn = h('button',{class:'btn ghost', onclick: async ()=>{
-        if(!confirm('Delete this specialty and its questions?')) return;
-        const r=await api.adminDeleteSpecialty(s.id, ADMIN_PW).catch(()=>null);
-        if(!r){ alert('Delete failed'); return; }
-        await renderAdminSpecialties();
-      }},'Delete');
-
-      const tr = h('tr',{},[
-        h('td',{},s.name),
-        h('td',{},String(count)),
-        h('td',{},h('div',{class:'row'},[dlBtn, delBtn]))
-      ]);
-      tbody.appendChild(tr);
-    }
-
-    // CSV import
-    root.appendChild(h('h3',{},'Upload Questions (.csv)'));
-    root.appendChild(h('p',{class:'notice'},'CSV format: specialty,question'));
-    const file = h('input',{type:'file',accept:'.csv,text/csv',id:'csvFileInput'});
-    const status = h('span',{id:'importStatus',class:'notice'},'');
-    const importBtn = h('button',{class:'btn', onclick: async ()=>{
-      const f = file.files?.[0]; if(!f){ alert('Choose a CSV file'); return; }
-      status.textContent='Importing…';
-      try{
-        const res = await api.adminImportCSV(await f.text(), ADMIN_PW);
-        status.textContent = `Imported ${res.inserted} questions across ${res.specialties} specialties.`;
-        await renderAdminSpecialties();
-      }catch(e){ status.textContent='Import failed'; }
-    }},'Import CSV');
-    root.appendChild(h('div',{class:'row'},[file, importBtn, status]));
-
-    // Responses section
-    root.appendChild(h('h3',{},'Responses'));
-    const statsRow = h('div',{class:'row'},[
-      h('label',{class:'pill'},'Total users: '), h('span',{id:'statUsers',class:'pill'},'—'),
-      h('label',{class:'pill',style:'margin-left:8px'},'Total responses: '), h('span',{id:'statResponses',class:'pill'},'—')
-    ]);
-    root.appendChild(statsRow);
-
-    const exportBtn = h('button',{class:'btn',style:'margin:8px 0',onclick: async ()=>{
-      const b = await api.adminExport(ADMIN_PW).catch(()=>null);
-      if(!b){ alert('Export failed'); return; }
-      const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='responses.csv'; a.click();
-    }},'Export responses (CSV)'));
-    root.appendChild(exportBtn);
-
-    const tableR = h('table',{},[
-      h('thead',{},h('tr',{},[
-        h('th',{},'Token'),h('th',{},'Name'),h('th',{},'Specialty'),
-        h('th',{},'Question'),h('th',{},'Answer'),h('th',{},'Reasons'),
-        h('th',{},'Note'),h('th',{},'Timestamp')
-      ])),
-      h('tbody')
-    ]);
-    root.appendChild(tableR);
-
-    try{
-      const data = await api.adminListResponses(ADMIN_PW);
-      $('#statUsers').textContent = data.uniqueUsers;
-      $('#statResponses').textContent = (data.rows||[]).length;
-      const tbodyR = tableR.querySelector('tbody');
-
-      // Build map of spec id -> name
-      const specMap = Object.fromEntries((specialties||[]).map(s=>[s.id,s.name]));
-      (data.rows||[]).forEach(r=>{
-        const tr = h('tr',{},[
-          h('td',{}, (r.token||'').slice(0,8)+'…'),
-          h('td',{}, r.name||''),
-          h('td',{}, specMap[r.spec_id] || r.spec_id || ''),
-          h('td',{}, r.question_text || ''),
-          h('td',{}, r.answer || ''),
-          h('td',{}, (r.reasons||[]).join('|')),
-          h('td',{}, r.note || ''),
-          h('td',{}, r.created_at || '')
-        ]);
-        tbodyR.appendChild(tr);
-      });
-    }catch(e){
-      // ignore
-    }
-  }
-
-  // ========= Events & init =========
-  function bindEvents(){
-    $('#homeBtn').onclick = ()=> show('view-home');
-    $('#adminBtn').onclick = openAdmin;
-    $('#adminCloseBtn').onclick = ()=> show('view-home');
-
-    $('#adminExportBtn').onclick = async ()=>{ /* handled inside admin view after render */ };
-
-    $('#startBtn').onclick = async ()=>{
-      const u=getUser(); u.name=$('#nameInput').value.trim(); u.specId=$('#specialtySelect').value; saveUser(u);
-      await api.syncUser(u.token, u.name).catch(()=>{});
-      const { questions } = await api.getQuestions(u.specId); const ids=questions.map(q=>q.id);
-      u._questionMap = Object.fromEntries(questions.map(q=>[q.id,q.text]));
-      u.questionOrder = shuffle(ids); u.setIndex=0; u.indexInSet=0; saveUser(u);
-      renderQuestion();
-    };
-    $('#resumeBtn').onclick = ()=>{ const u=getUser(); if(u.specId) renderQuestion(); else alert('No session yet. Pick a specialty to start.'); };
-    $('#resetBtn').onclick = ()=>{ if(confirm('Clear local progress (not server data)?')){ localStorage.removeItem(KEYS.users); localStorage.removeItem(KEYS.userToken); localStorage.removeItem(KEYS.adminPw); location.reload(); } };
-
-    // Quiz buttons
-    $('#btnYes').onclick = async ()=>{ $('#noReasons').classList.add('hidden'); await answerCurrent('yes'); nextOrFinish(); };
-    $('#btnNo').onclick  = ()=>{ $('#noReasons').classList.remove('hidden'); };
-    $('#btnSkip').onclick= async ()=>{ $('#noReasons').classList.add('hidden'); await answerCurrent('skip'); nextOrFinish(); };
-    $('#nextBtn').onclick= async ()=>{ if(!$('#noReasons').classList.contains('hidden')){ await answerCurrent('no'); } nextOrFinish(); };
-    $('#backBtn').onclick= goBack;
-
-    $('#startNextSetBtn').onclick = startNextSet;
-    $('#gotoHomeFromCompleteBtn').onclick = ()=> show('view-home');
-  }
-
-  bindEvents();
-  renderHome();
-  updateHeader();
-  </script>
+renderHome();
+</script>
 </body>
 </html>
